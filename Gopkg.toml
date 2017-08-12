@@ -1,0 +1,7 @@
+[[constraint]]
+  branch = "master"
+  name = "github.com/greyfocus/go-wunderground-api"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/hemtjanst/hemtjanst"
