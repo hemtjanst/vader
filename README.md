@@ -29,3 +29,7 @@ possible to configure it to poll more often but you can decrease the update
 frequency by passing in an integer bigger than 1 to `-refresh`.
 
 See the `--help` for all possible options.
+
+## Attribution
+
+<img src="https://icons.wxug.com/logos/JPG/wundergroundLogo_4c_horz.jpg" height="100">
