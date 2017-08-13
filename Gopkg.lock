@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/hemtjanst/hemtjanst"
   packages = ["device","messaging","messaging/flagmqtt"]
-  revision = "2e6325f5ecce6fc003ca5c5c1527f41c0a6151d2"
+  revision = "984cc580fae6b9c1ed8bdf62e9908eb1ed029e60"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
