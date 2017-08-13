@@ -59,7 +59,7 @@ func main() {
 
 	tempSensor := device.NewDevice("weather/temperature", m)
 	tempSensor.Manufacturer = "väder"
-	tempSensor.Name = "outside temperature"
+	tempSensor.Name = "Temperature (outside)"
 	tempSensor.LastWillID = id
 	tempSensor.Type = "temperatureSensor"
 	tempSensor.Features = map[string]*device.Feature{
@@ -70,7 +70,7 @@ func main() {
 
 	humiditySensor := device.NewDevice("weather/humidity", m)
 	humiditySensor.Manufacturer = "väder"
-	humiditySensor.Name = "relative humidity"
+	humiditySensor.Name = "Relative Humidity (outside)"
 	humiditySensor.LastWillID = id
 	humiditySensor.Type = "humiditySensor"
 	humiditySensor.Features = map[string]*device.Feature{
@@ -116,8 +116,10 @@ func do(token string, location string, interval int, sensors ...*device.Device) 
 		switch sensor.Type {
 		case "temperatureSensor":
 			sensor.Update("currentTemperature", strconv.FormatFloat(float64(conditions.FeelsLikeC), 'E', -1, 32))
+			log.Print("Published current temperature")
 		case "humiditySensor":
 			sensor.Update("currentRelativeHumidity", strings.Trim(conditions.RelativeHumidity, "%"))
+			log.Print("Published current relative humidity")
 		}
 	}
 }
