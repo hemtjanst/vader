@@ -9,7 +9,7 @@ The installation is pretty simple, `go install` it, get an [API token for
 Wunderground](wapi) and then point it at your MQTT broker.
 
 ```
-go install github.com/hemtjanst/vader
+go install github.com/hemtjanst/vader/cmd/vader
 vader -token XYZ -mqtt.address broker.mydomain.tld:1883
 ```
 
