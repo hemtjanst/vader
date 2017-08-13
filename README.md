@@ -1,6 +1,6 @@
 # Väder
 
-Väder exposes the "feels like" temperature and relative humidity as returned bi
+Väder exposes the "feels like" temperature and relative humidity as returned by
 the Wunderground API as a temperature and a humidity sensor to HomeKit.
 
 ## Installation
