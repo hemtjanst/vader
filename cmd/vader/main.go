@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	location = flag.String("location", "Sweden/Stockholm", "Location to fetch the current conditions of")
+	location = flag.String("location", "autoip", "Location to fetch the current conditions of")
 	refresh  = flag.Int("refresh", 1, "Time in hours after which to query the Wunderground API for new data")
 	apiToken = flag.String("token", "REQUIRED", "Wunderground API token")
 )
