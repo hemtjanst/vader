@@ -73,11 +73,9 @@ func main() {
 	humiditySensor.Type = "humiditySensor"
 	humiditySensor.AddFeature("currentRelativeHumidity", &device.Feature{})
 
-	tempSensor.PublishMeta()
-	humiditySensor.PublishMeta()
 	m.Subscribe("discover", 1, func(msg messaging.Message) {
-		m.Publish("announce", []byte(tempSensor.Topic), 1, false)
-		m.Publish("announce", []byte(humiditySensor.Topic), 1, false)
+		tempSensor.PublishMeta()
+		humiditySensor.PublishMeta()
 	})
 
 	// Publish the first time
