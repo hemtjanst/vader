@@ -62,20 +62,16 @@ func main() {
 	tempSensor.Name = "Temperature (outside)"
 	tempSensor.LastWillID = id
 	tempSensor.Type = "temperatureSensor"
-	tempSensor.Features = map[string]*device.Feature{
-		"currentTemperature": {
-			Min: -50,
-		},
-	}
+	tempSensor.AddFeature("currentTemperature", &device.Feature{
+		Min: -50,
+	})
 
 	humiditySensor := device.NewDevice("weather/humidity", m)
 	humiditySensor.Manufacturer = "väder"
 	humiditySensor.Name = "Relative Humidity (outside)"
 	humiditySensor.LastWillID = id
 	humiditySensor.Type = "humiditySensor"
-	humiditySensor.Features = map[string]*device.Feature{
-		"currentRelativeHumidity": {},
-	}
+	humiditySensor.AddFeature("currentRelativeHumidity", &device.Feature{})
 
 	tempSensor.PublishMeta()
 	humiditySensor.PublishMeta()
@@ -115,10 +111,12 @@ func do(token string, location string, interval int, sensors ...*device.Device) 
 	for _, sensor := range sensors {
 		switch sensor.Type {
 		case "temperatureSensor":
-			sensor.Update("currentTemperature", strconv.FormatFloat(float64(conditions.FeelsLikeC), 'E', -1, 32))
+			ft, _ := sensor.GetFeature("currentTemperature")
+			ft.Update(strconv.FormatFloat(float64(conditions.FeelsLikeC), 'E', -1, 32))
 			log.Print("Published current temperature")
 		case "humiditySensor":
-			sensor.Update("currentRelativeHumidity", strings.Trim(conditions.RelativeHumidity, "%"))
+			ft, _ := sensor.GetFeature("currentRelativeHumidity")
+			ft.Update(strings.Trim(conditions.RelativeHumidity, "%"))
 			log.Print("Published current relative humidity")
 		}
 	}
