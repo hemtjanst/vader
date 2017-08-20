@@ -129,8 +129,10 @@ func (h *handler) onConnectHandler(c mq.Client) {
 	log.Print("Connected to MQTT broker")
 
 	c.Subscribe("discover", 1, func(mq.Client, mq.Message) {
+		log.Print("Subscribed to discover topic")
 		for _, dev := range h.devices {
 			dev.PublishMeta()
+			log.Print("Published meta for ", dev.Topic)
 		}
 	})
 }
