@@ -83,8 +83,6 @@ func main() {
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatal("Failed to establish connection with broker: ", token.Error())
 	}
-	// Publish the first time
-	do(*apiToken, *location, *refresh, tempSensor, humiditySensor)
 
 loop:
 	for {
@@ -135,4 +133,7 @@ func (h *handler) onConnectHandler(c mq.Client) {
 			log.Print("Published meta for ", dev.Topic)
 		}
 	})
+
+	// Publish the first time
+	do(*apiToken, *location, *refresh, h.devices...)
 }
