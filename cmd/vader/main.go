@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	mq "github.com/eclipse/paho.mqtt.golang"
 	"github.com/hemtjanst/hemtjanst/device"
 	"github.com/hemtjanst/hemtjanst/messaging"
 	"github.com/hemtjanst/hemtjanst/messaging/flagmqtt"
@@ -22,6 +23,10 @@ var (
 	apiToken = flag.String("token", "REQUIRED", "Wunderground API token")
 )
 
+type handler struct {
+	devices []*device.Device
+}
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n\n", os.Args[0])
@@ -39,20 +44,20 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	id := flagmqtt.NewUniqueIdentifier()
+	h := &handler{
+		devices: []*device.Device{},
+	}
 	conf := flagmqtt.ClientConfig{
-		ClientID:    "väder",
-		WillTopic:   "leave",
-		WillPayload: id,
-		WillRetain:  false,
-		WillQoS:     0,
+		ClientID:         "väder",
+		WillTopic:        "leave",
+		WillPayload:      id,
+		WillRetain:       false,
+		WillQoS:          0,
+		OnConnectHandler: h.onConnectHandler,
 	}
 	c, err := flagmqtt.NewPersistentMqtt(conf)
 	if err != nil {
 		log.Fatal("Could not configure the MQTT client: ", err)
-	}
-
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal("Failed to establish connection with broker: ", token.Error())
 	}
 
 	m := messaging.NewMQTTMessenger(c)
@@ -65,6 +70,7 @@ func main() {
 	tempSensor.AddFeature("currentTemperature", &device.Feature{
 		Min: -50,
 	})
+	h.devices = append(h.devices, tempSensor)
 
 	humiditySensor := device.NewDevice("weather/humidity", m)
 	humiditySensor.Manufacturer = "väder"
@@ -72,12 +78,11 @@ func main() {
 	humiditySensor.LastWillID = id
 	humiditySensor.Type = "humiditySensor"
 	humiditySensor.AddFeature("currentRelativeHumidity", &device.Feature{})
+	h.devices = append(h.devices, humiditySensor)
 
-	m.Subscribe("discover", 1, func(msg messaging.Message) {
-		tempSensor.PublishMeta()
-		humiditySensor.PublishMeta()
-	})
-
+	if token := c.Connect(); token.Wait() && token.Error() != nil {
+		log.Fatal("Failed to establish connection with broker: ", token.Error())
+	}
 	// Publish the first time
 	do(*apiToken, *location, *refresh, tempSensor, humiditySensor)
 
@@ -118,4 +123,14 @@ func do(token string, location string, interval int, sensors ...*device.Device) 
 			log.Print("Published current relative humidity")
 		}
 	}
+}
+
+func (h *handler) onConnectHandler(c mq.Client) {
+	log.Print("Connected to MQTT broker")
+
+	c.Subscribe("discover", 1, func(mq.Client, mq.Message) {
+		for _, dev := range h.devices {
+			dev.PublishMeta()
+		}
+	})
 }
