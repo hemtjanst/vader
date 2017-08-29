@@ -113,7 +113,7 @@ func do(token string, location string, interval int, sensors ...*device.Device) 
 		switch sensor.Type {
 		case "temperatureSensor":
 			ft, _ := sensor.GetFeature("currentTemperature")
-			ft.Update(strconv.FormatFloat(float64(conditions.FeelsLikeC), 'E', -1, 32))
+			ft.Update(strconv.FormatFloat(float64(conditions.FeelsLikeC), 'f', 1, 32))
 			log.Print("Published current temperature")
 		case "humiditySensor":
 			ft, _ := sensor.GetFeature("currentRelativeHumidity")
