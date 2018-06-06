@@ -3,11 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	mq "github.com/eclipse/paho.mqtt.golang"
-	"github.com/hemtjanst/hemtjanst/device"
-	"github.com/hemtjanst/hemtjanst/messaging"
-	"github.com/hemtjanst/hemtjanst/messaging/flagmqtt"
-	"github.com/hemtjanst/vader"
 	"log"
 	"os"
 	"os/signal"
@@ -15,6 +10,12 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	mq "github.com/eclipse/paho.mqtt.golang"
+	"github.com/hemtjanst/hemtjanst/device"
+	"github.com/hemtjanst/hemtjanst/messaging"
+	"github.com/hemtjanst/hemtjanst/messaging/flagmqtt"
+	"github.com/hemtjanst/vader"
 )
 
 var (
