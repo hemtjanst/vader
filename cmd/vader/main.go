@@ -62,7 +62,7 @@ func main() {
 
 	m := messaging.NewMQTTMessenger(c)
 
-	tempSensor := device.NewDevice("weather/temperature", m)
+	tempSensor := device.NewDevice("sensor/wunderground/temperature", m)
 	tempSensor.Manufacturer = "väder"
 	tempSensor.Name = "Temperature (outside)"
 	tempSensor.LastWillID = id
@@ -72,7 +72,7 @@ func main() {
 	})
 	h.devices = append(h.devices, tempSensor)
 
-	humiditySensor := device.NewDevice("weather/humidity", m)
+	humiditySensor := device.NewDevice("sensor/wunderground/humidity", m)
 	humiditySensor.Manufacturer = "väder"
 	humiditySensor.Name = "Relative Humidity (outside)"
 	humiditySensor.LastWillID = id
