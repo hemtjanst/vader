@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -11,10 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	mq "github.com/eclipse/paho.mqtt.golang"
-	"github.com/hemtjanst/hemtjanst/device"
-	"github.com/hemtjanst/hemtjanst/messaging"
-	"github.com/hemtjanst/hemtjanst/messaging/flagmqtt"
+	"github.com/hemtjanst/bibliotek/client"
+	"github.com/hemtjanst/bibliotek/device"
+	"github.com/hemtjanst/bibliotek/feature"
+	"github.com/hemtjanst/bibliotek/transport/mqtt"
 	"github.com/hemtjanst/vader"
 )
 
@@ -24,10 +25,6 @@ var (
 	apiToken = flag.String("token", "REQUIRED", "Wunderground API token")
 )
 
-type handler struct {
-	devices []*device.Device
-}
-
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n\n", os.Args[0])
@@ -35,6 +32,7 @@ func main() {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\n")
 	}
+	mcfg := mqtt.MustFlags(flag.String, flag.Bool)
 	flag.Parse()
 
 	if *apiToken == "REQUIRED" {
@@ -44,46 +42,33 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	id := flagmqtt.NewUniqueIdentifier()
-	h := &handler{
-		devices: []*device.Device{},
-	}
-	conf := flagmqtt.ClientConfig{
-		ClientID:         "väder",
-		WillTopic:        "leave",
-		WillPayload:      id,
-		WillRetain:       false,
-		WillQoS:          0,
-		OnConnectHandler: h.onConnectHandler,
-	}
-	c, err := flagmqtt.NewPersistentMqtt(conf)
+	ctx, cancel := context.WithCancel(context.Background())
+	m, err := mqtt.New(ctx, mcfg())
 	if err != nil {
-		log.Fatal("Could not configure the MQTT client: ", err)
+		panic(err)
 	}
 
-	m := messaging.NewMQTTMessenger(c)
+	tempSensor, _ := client.NewDevice(&device.Info{
+		Topic:        "sensor/temperature/wunderground",
+		Manufacturer: "väder",
+		Name:         "Temperature (outside)",
+		Type:         "temperatureSensor",
+		Features: map[string]*feature.Info{
+			"currentTemperature": &feature.Info{
+				Min: -50,
+			}},
+	}, m)
+	humiditySensor, _ := client.NewDevice(&device.Info{
+		Topic:        "sensor/humidity/wunderground",
+		Manufacturer: "vader",
+		Name:         "Relative Humidity (outside)",
+		Type:         "humiditySensor",
+		Features: map[string]*feature.Info{
+			"currentRelativeHumidity": &feature.Info{}},
+	}, m)
 
-	tempSensor := device.NewDevice("sensor/temperature/wunderground", m)
-	tempSensor.Manufacturer = "väder"
-	tempSensor.Name = "Temperature (outside)"
-	tempSensor.LastWillID = id
-	tempSensor.Type = "temperatureSensor"
-	tempSensor.AddFeature("currentTemperature", &device.Feature{
-		Min: -50,
-	})
-	h.devices = append(h.devices, tempSensor)
-
-	humiditySensor := device.NewDevice("sensor/humidity/wunderground", m)
-	humiditySensor.Manufacturer = "väder"
-	humiditySensor.Name = "Relative Humidity (outside)"
-	humiditySensor.LastWillID = id
-	humiditySensor.Type = "humiditySensor"
-	humiditySensor.AddFeature("currentRelativeHumidity", &device.Feature{})
-	h.devices = append(h.devices, humiditySensor)
-
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal("Failed to establish connection with broker: ", token.Error())
-	}
+	// Publish the first time
+	do(*apiToken, *location, *refresh, tempSensor, humiditySensor)
 
 loop:
 	for {
@@ -97,13 +82,13 @@ loop:
 		}
 	}
 
-	c.Disconnect(250)
+	cancel()
 	log.Print("Disconnected from broker. Bye!")
 	os.Exit(0)
 }
 
 // do executes a fetch and publish cycle
-func do(token string, location string, interval int, sensors ...*device.Device) {
+func do(token string, location string, interval int, sensors ...client.Device) {
 	conditions, err := vader.GetWeather(token, location)
 	if err != nil {
 		log.Printf("Failed to get weather: %s. Next attempt in %d hours", err, interval)
@@ -111,30 +96,15 @@ func do(token string, location string, interval int, sensors ...*device.Device) 
 	}
 
 	for _, sensor := range sensors {
-		switch sensor.Type {
+		switch sensor.Type() {
 		case "temperatureSensor":
-			ft, _ := sensor.GetFeature("currentTemperature")
+			ft := sensor.Feature("currentTemperature")
 			ft.Update(strconv.FormatFloat(float64(conditions.FeelsLikeC), 'f', 1, 32))
 			log.Print("Published current temperature")
 		case "humiditySensor":
-			ft, _ := sensor.GetFeature("currentRelativeHumidity")
+			ft := sensor.Feature("currentRelativeHumidity")
 			ft.Update(strings.Trim(conditions.RelativeHumidity, "%"))
 			log.Print("Published current relative humidity")
 		}
 	}
-}
-
-func (h *handler) onConnectHandler(c mq.Client) {
-	log.Print("Connected to MQTT broker")
-
-	c.Subscribe("discover", 1, func(mq.Client, mq.Message) {
-		log.Print("Subscribed to discover topic")
-		for _, dev := range h.devices {
-			dev.PublishMeta()
-			log.Print("Published meta for ", dev.Topic)
-		}
-	})
-
-	// Publish the first time
-	do(*apiToken, *location, *refresh, h.devices...)
 }

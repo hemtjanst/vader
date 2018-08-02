@@ -3,5 +3,5 @@
   name = "github.com/greyfocus/go-wunderground-api"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/hemtjanst/hemtjanst"
+  name = "github.com/hemtjanst/bibliotek"
+  version = "0.1.0"

@@ -3,47 +3,50 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/eclipse/paho.mqtt.golang"
-  packages = [
-    ".",
-    "packets"
-  ]
-  revision = "720ed1a92c623623f00233e4bcd8d513d6e2fbe7"
+  digest = "1:cb11dd1f39fde997ea0a311d8049cb2fca583f558fd146232d127576f62bf2d1"
+  name = "github.com/goiiot/libmqtt"
+  packages = ["."]
+  pruneopts = ""
+  revision = "883b6d0f24731b69fe69daecc94cc7076a69dc70"
+
+[[projects]]
+  digest = "1:c1d7e883c50a26ea34019320d8ae40fad86c9e5d56e63a1ba2cb618cef43e986"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:664f7ad60ce172af13011a9a178748da1cad5c3f2fac46ad954d085f9407ef98"
   name = "github.com/greyfocus/go-wunderground-api"
   packages = ["."]
+  pruneopts = ""
   revision = "40cf85b0b91ebfca3b7ec95cf2266fe0fc4512a9"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/hemtjanst/hemtjanst"
+  digest = "1:6090e1c7a5bd005475d10dcb237d7cdd3899b589a8cccd718494cd89ff77278a"
+  name = "github.com/hemtjanst/bibliotek"
   packages = [
+    "client",
     "device",
-    "messaging",
-    "messaging/flagmqtt"
+    "feature",
+    "transport/mqtt",
   ]
-  revision = "242d1a706c197680777f1adabab4598b79305e09"
-
-[[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
-  version = "v1.1.0"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/net"
-  packages = [
-    "proxy",
-    "websocket"
-  ]
-  revision = "57efc9c3d9f91fb3277f8da1cff370539c4d3dc5"
+  pruneopts = ""
+  revision = "39b8e2cef601eee01eb1fa4b11ab6b7591866c7b"
+  version = "v0.1.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9835f101219bdd51ce8867f9b31592f928e5e1b9974a3955bbebda6ca7fdbac8"
+  input-imports = [
+    "github.com/greyfocus/go-wunderground-api",
+    "github.com/hemtjanst/bibliotek/client",
+    "github.com/hemtjanst/bibliotek/device",
+    "github.com/hemtjanst/bibliotek/feature",
+    "github.com/hemtjanst/bibliotek/transport/mqtt",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -19,6 +19,11 @@ around with.
 
 [wapi]: https://www.wunderground.com/weather/api/d/pricing.html
 
+Please note that using `go install` will grab the latest version of all the
+dependencies which can cause problems. As such a `Gopkg.toml` and associated
+lock file is provided to be used with `dep ensure`. After that you can
+`go build -o vader cmd/vader/main.go`.
+
 ## Configuration
 
 It's required to pass in `-token` which has to be a [Wunderground API](wapi)
