@@ -3,6 +3,13 @@
 Väder exposes the "feels like" temperature and relative humidity as returned by
 the Wunderground API as a temperature and a humidity sensor to HomeKit.
 
+---
+
+**The Wunderground API has been terminated: https://apicommunity.wunderground.com/weatherapi/topics/end-of-service-for-the-weather-underground-api.
+As such this partciular tool no longer works and the repository has been archived.**
+
+---
+
 ## Installation
 
 The installation is pretty simple, `go install` it, get an [API token for
